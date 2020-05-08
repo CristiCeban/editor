@@ -1,6 +1,7 @@
 OBJS = \
 	editor.o \
-	terminal_state.o 
+	terminal_state.o \
+	file_handler.o
 BIN = editor
 CFLAGS = -std=gnu99 -Wall -Werror
 
@@ -16,4 +17,4 @@ $(BIN): $(OBJS)
 
 
 clean:
-	rm -f  $(BIN) $(OBJS)
+	rm -f $(BIN) $(OBJS)
