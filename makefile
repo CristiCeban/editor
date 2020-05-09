@@ -2,7 +2,8 @@ OBJS = \
 	editor.o \
 	terminal_handler.o \
 	file_handler.o \
-	events_handler.o
+	events_handler.o \
+	display_handler.o 
 BIN = editor
 CFLAGS = -std=gnu99 -Wall -Werror
 

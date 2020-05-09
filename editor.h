@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include "terminal_handler.h"
 #include "file_handler.h"
+#include "display_handler.h"
 #ifndef EDITOR
 #define EDITOR
+
 
 void start_editor(char * filename);
 

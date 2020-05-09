@@ -67,3 +67,13 @@ void file_string_write(fstr *f){
     // Close file.
     fclose(file);
 }
+
+// Get char at index i from file_string
+char file_string_get_char(fstr *f,size_t i){
+    return f->file_data[i];
+}
+
+//Get the size of the file_string
+size_t file_string_get_size(fstr *f) {
+    return f->size;
+}

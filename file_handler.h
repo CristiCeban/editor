@@ -25,4 +25,10 @@ void printf_file(fstr *f);
 
 // Write the data to file;
 void file_string_write(fstr *f);
+
+// Get char at index i from file_string
+char file_string_get_char(fstr *f,size_t i);
+
+// Get the size of the file_string.
+size_t file_string_get_size(fstr *f);
 #endif

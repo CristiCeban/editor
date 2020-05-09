@@ -1,7 +1,6 @@
 #include "terminal_handler.h"
 
 static struct termios trm_before_editing, trm_of_editor ;
-//struct winsize terminal_dimensions;
 void make_terminal_editable(){
     tcgetattr(STDIN_FILENO, &trm_before_editing);
     trm_of_editor = trm_before_editing;
