@@ -7,14 +7,25 @@ struct winsize terminal_dimensions;
 struct cursor cur;
 // Frame position (x,y);
 struct cursor frm;
-
+size_t p = 0;
+long x,y = 0, margin = 2;
 // Reset cursor.
-void reset_cursor(){
+void reset_cursor1(){
     if(cur.x>0)
         printf("\033[%ldD", cur.x);
     if(cur.y - frm.y > 0)
         printf("\033[%ldA", cur.y - frm.y);
 }
+
+//Reset cursor 2
+
+void reset_cursor2(){
+    if (x > 0)
+        printf("\033[%ldD", x);
+    if (y > 0)
+        printf("\033[%ldA", y);
+}
+
 // Move cursor to the left.
 void cursor_left() {
     if(cur.ptr > 0)
@@ -24,14 +35,23 @@ void cursor_left() {
 // Move cursor to the right.
 void cursor_right(fstr *f) {
     if (cur.ptr < file_string_get_size(f))
-        cur.ptr ++;
+        cur.ptr++;
 }
 
+//Move cursor down.
+void cursor_down(){
+
+}
+
+//Move cursor up
+void cursor_up(){
+
+}
 // Calculate the cursor possition at the begining.
 void calc_cursor_pos(fstr *f){
     // Definitions.
-    size_t p = 0;
-    long x,y = 0;
+    p = 0;
+    x = y = 0;
     // Calculate the positions of the cursor.(X,Y);
     while(p < cur.ptr){
         if (file_string_get_char(f,p) == '\n'){
@@ -42,7 +62,7 @@ void calc_cursor_pos(fstr *f){
             x+=4;
         else 
             x++;
-        p +=1;
+        p++;
     }
     cur.x = x;
     cur.y = y;
@@ -60,6 +80,14 @@ void calc_frame_shift(){
     else frm.y = 0;
 }
 
+
+void backspace(){
+
+}
+
+void insert(char c){
+
+}
 // Draw character.
 // TODO add higlight.
 void draw(char c){
@@ -78,14 +106,26 @@ void draw(char c){
 }
 
 //Display the result of the file_string.
-void displayResult(fstr *f){
+void display_result(fstr *f){
 
-    size_t p = 0; long x,y = 0;
-    int margin = 2;
+    //Declarations
+    p = 0; x = y = 0;
+    //pass throught non-value(visible)
+    while(y<frm.x){
+        if(file_string_get_char(f,p) == '\n')
+            y++;
+        p++;
+    }
+    
+    //draw the value
     while(p < file_string_get_size(f) && y <= frm.y + terminal_dimensions.ws_row - margin){
         if(file_string_get_char(f,p) == '\n'){
             y++;
             x = 0;
+        }
+        else if(file_string_get_char(f,p) == '\t'){
+            printf("    ");
+            x+=4;
         }
         else {
             if(x >= frm.x && x < frm.x + terminal_dimensions.ws_col)
@@ -95,15 +135,16 @@ void displayResult(fstr *f){
         p ++;
     }
 
-    // Clear the rest of the screen.
-    printf("\033[0m\033[K");
-    while (y <= frm.y + terminal_dimensions.ws_row - margin) {
-    printf("\033[K\n");
-    y += 1;
-    }   
 
 }
-
+void clear_rest_screen(){
+     // Clear the rest of the screen.
+    printf("\033[0m\033[K");
+    while (y <= frm.y + terminal_dimensions.ws_row - margin) {
+        printf("\033[K\n");
+        y += 1;
+    }   
+}
 //Init display.
 void init_display(){
     frm.x=frm.y=cur.x=cur.y=cur.ptr=0;
@@ -116,12 +157,79 @@ void set_cursor_current(){
         printf("\033[%ldB", cur.y - frm.y);
 
 }
+
+//Read user input
+void read_from_keyboard(fstr *f){
+    char c;
+    while(true){
+
+        if(!read(STDIN_FILENO,&c,1))
+            continue;
+
+        else if(c == 19){
+            file_string_write(f);
+            break;
+        }
+
+        //escape character.(Special char).
+        else if (c == 27) {
+
+            if(read(STDIN_FILENO,&c,1)){
+                //CTRL character
+                if(c == '['){
+                    read(STDIN_FILENO,&c,1);
+
+                    //arrows keys
+                    if(c == 'A')
+                        //TODO UP
+                        cursor_up();
+                    else if(c == 'B')
+                        //TODO DOWN
+                        cursor_down();
+                    else if(c == 'C')
+                        cursor_right(f);
+                    else if (c == 'D')
+                        cursor_left();   
+
+                }
+            }
+
+            //escape Key.
+            else break;
+        }
+
+        // backspace 
+        else if (c == 127){
+            if (cur.ptr > 0)
+                backspace();
+        }
+
+        //char
+        else {
+            if(c==13)
+                c = '\n';
+            insert(c);
+        }
+        render(f);
+    }
+
+    
+}
+
+void set_pos_end(fstr *f){
+    cur.ptr = file_string_get_size(f);
+    render(f);
+    printf("\n");
+    file_string_close(f);
+}
+
+//Render
 void render(fstr *f){
     // Read terminal dimensions.
     ioctl(STDOUT_FILENO,TIOCGWINSZ, &terminal_dimensions);
     
-    // Reset cursor
-    reset_cursor();
+    // Reset cursor 1
+    reset_cursor1();
 
     //Calculate cursor x and y coordinates.
     calc_cursor_pos(f);
@@ -130,15 +238,16 @@ void render(fstr *f){
     calc_frame_shift();
 
     //Display result;
-    displayResult(f);
+    display_result(f);
 
-    // Reset Cursor.
-    reset_cursor();
 
-    //Set the cursor to curent character.
+    //RESET NORMAL CURSOR WITH X AND Y
+    // Reset Cursor.2
+    reset_cursor2();
+
+    //Set the cursor to backspace();curent character.
     set_cursor_current();
     
-    // printf_file(f);
 
     //display the results.
     fflush(stdout);
@@ -154,6 +263,11 @@ void start_display(fstr *f){
     //Render (display_hander.h);
     render(f);
 
+    //Read the user input
+    read_from_keyboard(f);
     //TODO get the char from input.
-    while(true){}
+
+    //Set pos to the end.
+    set_pos_end(f);
 }
+
