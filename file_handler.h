@@ -15,16 +15,22 @@ typedef struct file_string{
 } fstr;
 
 // Create a new file_string.
-fstr * file_string_open(char * filename);
+fstr *file_string_open(char * filename);
 
 // close file_string.
 void file_string_close(fstr *f);
 
-// Print the data from file_string;
-void printf_file(fstr *f);
-
 // Write the data to file;
 void file_string_write(fstr *f);
+
+//delete char from given index
+void file_string_remove_char(fstr *f,size_t i);
+
+//Apend to the file_string
+void file_string_append(fstr *f, char c);
+
+//insert char at given index into file_string
+void file_string_insert_char(fstr *f,char c, size_t i);
 
 // Get char at index i from file_string
 char file_string_get_char(fstr *f,size_t i);

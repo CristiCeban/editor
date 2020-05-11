@@ -3,6 +3,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "editor.h"
 #include "file_handler.h"
 #include "terminal_handler.h"
 #include "events_handler.h"
@@ -16,11 +17,11 @@ struct cursor {
     
     // x and y position
     long x,y;
-} cursor;
+};
 
 struct frame {
     long x,y;
-} frame;
+};
 
 void start_display(fstr *f);
 void cursor_left();
@@ -29,7 +30,7 @@ void cursor_down();
 void cursor_up();
 void render(fstr *f);
 void draw(char c);
-void insert(char c);
+void insert(fstr *f,char c);
 void backspace();
 void init_display();
 void reset_cursor1();

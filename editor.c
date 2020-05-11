@@ -6,10 +6,10 @@ const char * error_message = "You should use programm  like this ./editor {file_
 
 //Start editor and print the state.
 void start_editor(char * filename){
-    printf("Program started\n");
-    printf("Trying to open %s\n",filename);
+    //printf("Program started\n");
+    //printf("Trying to open %s\n",filename);
     f_str = file_string_open(filename);
-    printf("Opened %s with succes\n",filename);
+    //printf("Opened %s with succes\n",filename);
     start_display(f_str);
 }
 
