@@ -6,8 +6,7 @@
 #include "display_handler.h"
 #ifndef EDITOR
 #define EDITOR
-
-
+#define buffer_max_size 256
 void start_editor(char * filename);
 
 #endif

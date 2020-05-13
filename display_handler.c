@@ -1,5 +1,10 @@
 #include "display_handler.h"
 
+
+//Definitions 
+
+char * message;
+char buffer[buffer_max_size];
 // Terminal dimensions.
 struct winsize terminal_dimensions;
 
@@ -11,24 +16,43 @@ size_t p = 0;
 long x=0,y = 0, margin = 2;
 
 
-// FUnctions..
+
+// Functions..
 
 
 // Reset cursor.
 void reset_cursor1(){
-    if(cur.x>0)
-        printf("\033[%ldD", cur.x);
-    if(cur.y - frm.y > 0)
-        printf("\033[%ldA", cur.y - frm.y);
+    if(cur.x>0){
+        message = "\033[%ldD";
+        sprintf(buffer,message,cur.x);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //fflush(stdout);
+        //printf("\033[%ldD", cur.x);
+    }
+    if(cur.y - frm.y > 0){
+        message = "\033[%ldA";
+        sprintf(buffer,message,cur.y-frm.y);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("\033[%ldA", cur.y - frm.y);
+    }
 }
 
 //Reset cursor 2
 
 void reset_cursor2(){
-    if (x > 0)
-        printf("\033[%ldD", x);
-    if (y > 0)
-        printf("\033[%ldA", y);
+    if (x > 0){
+        message = "\033[%ldD";
+        sprintf(buffer,message,x);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("\033[%ldD", x);
+    }
+    if (y > 0){
+        message = "\033[%ldA";
+        sprintf(buffer,message,x);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("\033[%ldA", y);
+    }
+        
 }
 
 // Move cursor to the left.
@@ -107,11 +131,25 @@ void draw(char c){
     if ((c >= '0' && c <= '9') || 
         (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
-        (c == '.')               )
-        printf("%c",c);
-    else if (c == ' ') printf(" ");
+        (c == '.')               ){
+            message = "%c";
+            sprintf(buffer,message,c);
+            write(STDOUT_FILENO,buffer,strlen(buffer));
+            //printf("%c",c);
+        }
+    else if (c == ' ') {
+        message = " ";
+        sprintf(buffer,message);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //write(STDOUT_FILENO," ",1);
+        //printf(" ");
+        }
+    // This one is for handling color for future...
     else {
-        printf("%c",c);
+        message = "%c";
+        sprintf(buffer,message,c);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("%c",c);
     }
 
 }
@@ -131,12 +169,18 @@ void display_result(fstr *f){
     //draw the value
     while(p < file_string_get_size(f) && y <= frm.y + terminal_dimensions.ws_row - margin){
         if(file_string_get_char(f,p) == '\n'){
-            printf("\033[K\n");
+            message = "\033[K\n";
+            sprintf(buffer,message);
+            write(STDOUT_FILENO,buffer,strlen(buffer));
+            //printf("\033[K\n");
             y++;
             x = 0;
         }
         else if(file_string_get_char(f,p) == '\t'){
-            printf("    ");
+            message = "    ";
+            sprintf(buffer,message);
+            write(STDOUT_FILENO,buffer,strlen(buffer));
+            //printf("    ");
             x+=4;
         }
         else {
@@ -152,9 +196,15 @@ void display_result(fstr *f){
 //Clear the rest of the screen
 void clear_rest_screen(){
      // Clear the rest of the screen.
-    printf("\033[0m\033[K");
+    message = "\033[0m\033[K";
+    sprintf(buffer,message);
+    write(STDOUT_FILENO,buffer,strlen(buffer));
+    //printf("\033[0m\033[K");
     while (y <= frm.y + terminal_dimensions.ws_row - margin) {
-        printf("\033[K\n");
+        message = "\033[K\n";
+        sprintf(buffer,message);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("\033[K\n");
         y++;
     }   
 }
@@ -165,10 +215,20 @@ void init_display(){
 }
 
 void set_cursor_current(){
-    if (cur.x - frm.x > 0)
-        printf("\033[%ldC", cur.x - frm.x);
-    if (cur.y - frm.y > 0)
-        printf("\033[%ldB", cur.y - frm.y);
+    if (cur.x - frm.x > 0){
+        message = "\033[%ldC";
+        sprintf(buffer,message);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("\033[%ldC", cur.x - frm.x);
+
+    }
+    if (cur.y - frm.y > 0){
+        message = "\033[%ldB";
+        sprintf(buffer,message);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+        //printf("\033[%ldB", cur.y - frm.y);
+    }
+        
 
 }
 
@@ -234,7 +294,10 @@ void read_from_keyboard(fstr *f){
 void set_pos_end(fstr *f){
     cur.ptr = file_string_get_size(f);
     render(f);
-    printf("\n");
+    message = "\n";
+    sprintf(buffer,message);
+    write(STDOUT_FILENO,buffer,strlen(buffer));
+    //printf("\n");
     file_string_close(f);
 }
 
@@ -266,7 +329,7 @@ void render(fstr *f){
     
 
     //display the results.
-    fflush(stdout);
+    //fflush(stdout);
 }
 
 void start_display(fstr *f){
