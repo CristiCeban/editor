@@ -68,13 +68,39 @@ void cursor_right(fstr *f) {
 }
 
 //Move cursor down.
-void cursor_down(){
-
+void cursor_down(fstr *f){
+    while(cur.ptr < file_string_get_size(f) &&
+        file_string_get_char(f,cur.ptr) != '\n')
+            cur.ptr++;
+    if(cur.ptr < file_string_get_size(f))
+        cur.ptr++;
+    long x = 0;
+    while(cur.ptr <file_string_get_size(f) &&
+        file_string_get_char(f,cur.ptr) != '\n' &&
+        x < cur.x){
+            cur.ptr++;
+            x++;
+        }    
 }
 
 //Move cursor up
-void cursor_up(){
-
+void cursor_up(fstr *f){
+    if(cur.y > 0){
+        cur.ptr--;
+        while(file_string_get_char(f,cur.ptr)!='\n')
+            cur.ptr--;
+        cur.ptr--;
+        long size = 1;
+        while(cur.ptr > 0 && file_string_get_char(f,cur.ptr)!='\n'){
+            cur.ptr--;
+            size++;
+        }
+        if(cur.x > size) 
+            cur.ptr += size;
+        else cur.ptr += cur.x+1; // TODO CHECK IF +cur.x or +cur.x+1;
+    }
+    else
+        cur.ptr = 0;
 }
 // Calculate the cursor possition at the begining.
 void calc_cursor_pos(fstr *f){
@@ -113,6 +139,12 @@ void backspace(fstr *f){
     if(cur.ptr > 0) {
         file_string_remove_char(f,cur.ptr-1);
         cur.ptr--;
+    }
+}
+
+void delete(fstr *f){
+    if(cur.ptr >= 0 && cur.ptr < file_string_get_size(f)){
+        file_string_remove_char(f,cur.ptr);
     }
 }
 
@@ -257,14 +289,22 @@ void read_from_keyboard(fstr *f){
                     //arrows keys
                     if(c == 'A')
                         //TODO UP
-                        cursor_up();
+                        cursor_up(f);
                     else if(c == 'B')
                         //TODO DOWN
-                        cursor_down();
+                        cursor_down(f);
                     else if(c == 'C')
                         cursor_right(f);
                     else if (c == 'D')
-                        cursor_left();   
+                        cursor_left();
+                    
+                    //delete
+                    else if( c == '3'){
+                        read(STDIN_FILENO,&c,1);
+                        if (c=='~'){
+                            delete(f);
+                        }
+                    }
 
                 }
             }
@@ -329,7 +369,7 @@ void render(fstr *f){
     
 
     //display the results.
-    fflush(stdout);
+    //fflush(stdout);
 }
 
 void start_display(fstr *f){
@@ -344,7 +384,6 @@ void start_display(fstr *f){
 
     //Read the user input
     read_from_keyboard(f); 
-    //TODO get the char from input.  
 
     //Set pos to the end.
     set_pos_end(f);

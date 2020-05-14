@@ -32,6 +32,7 @@ void render(fstr *f);
 void draw(char c);
 void insert(fstr *f,char c);
 void backspace();
+void delete(fstr *f);
 void init_display();
 void reset_cursor1();
 void reset_cursor2();
