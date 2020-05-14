@@ -48,7 +48,7 @@ void reset_cursor2(){
     }
     if (y > 0){
         message = "\033[%ldA";
-        sprintf(buffer,message,x);
+        sprintf(buffer,message,y);
         write(STDOUT_FILENO,buffer,strlen(buffer));
         //printf("\033[%ldA", y);
     }
@@ -217,14 +217,14 @@ void init_display(){
 void set_cursor_current(){
     if (cur.x - frm.x > 0){
         message = "\033[%ldC";
-        sprintf(buffer,message);
+        sprintf(buffer,message, cur.x - frm.x);
         write(STDOUT_FILENO,buffer,strlen(buffer));
         //printf("\033[%ldC", cur.x - frm.x);
 
     }
     if (cur.y - frm.y > 0){
         message = "\033[%ldB";
-        sprintf(buffer,message);
+        sprintf(buffer,message,cur.y - frm.y);
         write(STDOUT_FILENO,buffer,strlen(buffer));
         //printf("\033[%ldB", cur.y - frm.y);
     }
@@ -329,7 +329,7 @@ void render(fstr *f){
     
 
     //display the results.
-    //fflush(stdout);
+    fflush(stdout);
 }
 
 void start_display(fstr *f){

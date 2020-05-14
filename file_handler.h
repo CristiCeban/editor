@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #ifndef FILE_HANDLER
 #define FILE_HANDLER
 
