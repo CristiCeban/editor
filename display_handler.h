@@ -7,6 +7,7 @@
 #include "file_handler.h"
 #include "terminal_handler.h"
 #include "events_handler.h"
+#include "time.h"
 
 #ifndef DISPLAY_HANDLER
 #define DISPLAY_HANDLER
@@ -23,7 +24,11 @@ struct frame {
     long x,y;
 };
 
+enum Mode {INSERTION = 700, NORMAL = 701, SPECIAL = 702};
+
 void start_display(fstr *f);
+void mode_insertion();
+void mode_normal();
 void cursor_left();
 void cursor_right();
 void cursor_down();
@@ -40,6 +45,7 @@ void calc_cursor_pos(fstr *f);
 void calc_frame_shift();
 void display_result(fstr *f);
 void set_cursor_current();
+void clear_screen();
 void clear_rest_screen();
 void read_from_keyboard();
 #endif

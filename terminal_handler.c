@@ -1,6 +1,7 @@
 #include "terminal_handler.h"
 
 static struct termios trm_before_editing, trm_of_editor ;
+// 60s magic
 void make_terminal_editable(void){
     tcgetattr(STDIN_FILENO, &trm_before_editing);
     trm_of_editor = trm_before_editing;

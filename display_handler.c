@@ -15,42 +15,64 @@ struct frame frm;
 size_t p = 0;
 long x=0,y = 0, margin = 2;
 
+// Special for future;
+enum Mode mode = NORMAL;
+
 
 
 // Functions..
 
 
+void mode_normal(fstr *f){
+    clear_screen();
+    reset_cursor2();
+    cursor_down(f);
+    mode=NORMAL;
+    write(STDOUT_FILENO,"MODE NORMAL\n",11);
+}
+
+void mode_insertion(fstr *f){
+    clear_screen();
+    reset_cursor2();
+    cursor_down(f);
+    mode=INSERTION;
+    write(STDOUT_FILENO,"MODE INSERTIO\n",15);
+}
 // Reset cursor.
 void reset_cursor1(){
     if(cur.x>0){
         message = "\033[%ldD";
         sprintf(buffer,message,cur.x);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //fflush(stdout);
-        //printf("\033[%ldD", cur.x);
     }
     if(cur.y - frm.y > 0){
         message = "\033[%ldA";
         sprintf(buffer,message,cur.y-frm.y);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("\033[%ldA", cur.y - frm.y);
     }
 }
 
-//Reset cursor 2
 
+//Set the cursor down.
+void set_cursor_down(){
+    message = "\033[%ldD";
+    sprintf(buffer,message,terminal_dimensions.ws_col);
+    write(STDOUT_FILENO,buffer,strlen(buffer));
+    message = "\033[%ldA";
+    sprintf(buffer,message,terminal_dimensions.ws_row);
+    write(STDOUT_FILENO,buffer,strlen(buffer));
+}
+//Reset cursor 2
 void reset_cursor2(){
     if (x > 0){
         message = "\033[%ldD";
         sprintf(buffer,message,x);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("\033[%ldD", x);
     }
     if (y > 0){
         message = "\033[%ldA";
         sprintf(buffer,message,y);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("\033[%ldA", y);
     }
         
 }
@@ -158,7 +180,6 @@ void insert(fstr *f,char c){
 // Draw character.
 // TODO add higlight.
 void draw(char c){
-    //TODO make highlight with color.
     // For example number,symbols,key words.
     if ((c >= '0' && c <= '9') || 
         (c >= 'a' && c <= 'z') ||
@@ -167,21 +188,17 @@ void draw(char c){
             message = "%c";
             sprintf(buffer,message,c);
             write(STDOUT_FILENO,buffer,strlen(buffer));
-            //printf("%c",c);
         }
     else if (c == ' ') {
         message = " ";
         sprintf(buffer,message);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //write(STDOUT_FILENO," ",1);
-        //printf(" ");
         }
     // This one is for handling color for future...
     else {
         message = "%c";
         sprintf(buffer,message,c);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("%c",c);
     }
 
 }
@@ -204,7 +221,6 @@ void display_result(fstr *f){
             message = "\033[K\n";
             sprintf(buffer,message);
             write(STDOUT_FILENO,buffer,strlen(buffer));
-            //printf("\033[K\n");
             y++;
             x = 0;
         }
@@ -212,7 +228,6 @@ void display_result(fstr *f){
             message = "    ";
             sprintf(buffer,message);
             write(STDOUT_FILENO,buffer,strlen(buffer));
-            //printf("    ");
             x+=4;
         }
         else {
@@ -225,18 +240,28 @@ void display_result(fstr *f){
 
 }
 
+//Clear all the screen;
+void clear_screen(){
+    message = "\033[0m\033[K";
+    sprintf(buffer,message);
+    write(STDOUT_FILENO,buffer,strlen(buffer));
+    for(int y = 0;y < terminal_dimensions.ws_row;y++){
+        message = "\033[K\n";
+        sprintf(buffer,message);
+        write(STDOUT_FILENO,buffer,strlen(buffer));
+    }
+}
+
 //Clear the rest of the screen
 void clear_rest_screen(){
      // Clear the rest of the screen.
     message = "\033[0m\033[K";
     sprintf(buffer,message);
     write(STDOUT_FILENO,buffer,strlen(buffer));
-    //printf("\033[0m\033[K");
     while (y <= frm.y + terminal_dimensions.ws_row - margin) {
         message = "\033[K\n";
         sprintf(buffer,message);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("\033[K\n");
         y++;
     }   
 }
@@ -251,14 +276,12 @@ void set_cursor_current(){
         message = "\033[%ldC";
         sprintf(buffer,message, cur.x - frm.x);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("\033[%ldC", cur.x - frm.x);
 
     }
     if (cur.y - frm.y > 0){
         message = "\033[%ldB";
         sprintf(buffer,message,cur.y - frm.y);
         write(STDOUT_FILENO,buffer,strlen(buffer));
-        //printf("\033[%ldB", cur.y - frm.y);
     }
         
 
@@ -268,7 +291,6 @@ void set_cursor_current(){
 void read_from_keyboard(fstr *f){
     char c;
     while(true){
-
         if(!read(STDIN_FILENO,&c,1))
             continue;
 
@@ -310,7 +332,9 @@ void read_from_keyboard(fstr *f){
             }
 
             //escape Key.
-            else break;
+            //else if(mode==INSERTION)
+                //mode_normal(f);
+            //else break;
         }
 
         // backspace 
@@ -318,7 +342,9 @@ void read_from_keyboard(fstr *f){
             if (cur.ptr > 0)
                 backspace(f);
         }
-
+        else if(mode == NORMAL && c == 105){
+            //mode_insertion(f);
+        }
         //char
         else {
             if(c==13)
@@ -327,8 +353,6 @@ void read_from_keyboard(fstr *f){
         }
         render(f);
     }
-
-    
 }
 
 void set_pos_end(fstr *f){
@@ -337,7 +361,6 @@ void set_pos_end(fstr *f){
     message = "\n";
     sprintf(buffer,message);
     write(STDOUT_FILENO,buffer,strlen(buffer));
-    //printf("\n");
     file_string_close(f);
 }
 

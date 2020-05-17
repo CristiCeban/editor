@@ -52,7 +52,6 @@ void file_string_write(fstr *f){
         die("File could not be open");
     
     // Write the data from file_string->file_data to file.
-    printf("File size is before writing :%ld\n",f->size);
     write(fd,f->file_data,f->size);
     // Close file.
     close(fd);
@@ -75,7 +74,6 @@ void file_string_insert_char(fstr *f,char c,size_t i){
 
 //delete char at index i from file_string
 void file_string_remove_char(fstr *f,size_t i){
-    //char * new_data = malloc(sizeof(char)*f->size-1);
     char * new_data = malloc(f->size-1);
     memcpy(new_data, f->file_data,i);
     memcpy(new_data + i,f->file_data+i+1,f->size - i - 1);
